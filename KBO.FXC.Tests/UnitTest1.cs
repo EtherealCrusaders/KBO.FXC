@@ -1,3 +1,5 @@
+using KBOFXC;
+
 namespace KBO.FXC.Tests
 {
     public class Tests
@@ -10,7 +12,7 @@ namespace KBO.FXC.Tests
         [Test]
         public void Test1()
         {
-            int result = Program.Main(new string[] { });
+            int result = Program.Main([]);
             Assert.That(result, Is.EqualTo(0));
         }
     }

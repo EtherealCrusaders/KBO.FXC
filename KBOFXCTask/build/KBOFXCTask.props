@@ -1,0 +1,7 @@
+<Project>
+	<UsingTask AssemblyFile="$(MSBuildThisFileDirectory)EHFXC.dll" TaskName="KBOEffectCompilerTask"/>
+
+	<ItemGroup>
+		<KBOEffects Include="$(MSBuildProjectDir)**/*.fx" />
+	</ItemGroup>
+</Project>

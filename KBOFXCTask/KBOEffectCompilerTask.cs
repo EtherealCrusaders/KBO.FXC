@@ -8,15 +8,18 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using KBO.FXC;
 
-namespace KBO.FXC
+namespace KBOFXC.Task
 {
-    public class EffectCompilerTask : Microsoft.Build.Utilities.Task
+    public class KBOEffectCompilerTask : Microsoft.Build.Utilities.Task
     {
         [Required]
         public ITaskItem[]? EffectFiles { get; set; }
 
         public bool IgnoreErrors { get; set; }
+
+        private static CompilerFlags DefaultEffectFlags = CompilerFlags.None;
 
         public override bool Execute()
         {
@@ -32,7 +35,7 @@ namespace KBO.FXC
                     string relativeFxFilePath = item.ItemSpec;
                     string fullFxFilePath = Path.GetFullPath(relativeFxFilePath);
                     Environment.CurrentDirectory = Path.GetDirectoryName(fullFxFilePath)!;
-                    var result = Program.CompileShaderFromFile(fullFxFilePath, Program.DefaultEffectFlags, true);
+                    var result = EffectCompiler.CompileShaderFromFile(fullFxFilePath, DefaultEffectFlags, true);
 
                     string outputFile = item.GetMetadata("OutputFilePath");
                     if (string.IsNullOrWhiteSpace(outputFile))

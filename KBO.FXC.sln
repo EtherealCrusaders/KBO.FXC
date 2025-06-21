@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBO.FXC.Tests", "KBO.FXC.Tests\KBO.FXC.Tests.csproj", "{76D3FBEB-F920-4A6E-AAF8-6303FB8D8FB9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBOFXCTask", "KBOFXCTask\KBOFXCTask.csproj", "{2837A212-53FF-4C90-8739-7F6746E46382}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBOFXC", "KBOFXC\KBOFXC.csproj", "{386B7BA4-DCF8-4CF8-9E05-57098CD0B003}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +33,14 @@ Global
 		{76D3FBEB-F920-4A6E-AAF8-6303FB8D8FB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76D3FBEB-F920-4A6E-AAF8-6303FB8D8FB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76D3FBEB-F920-4A6E-AAF8-6303FB8D8FB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2837A212-53FF-4C90-8739-7F6746E46382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2837A212-53FF-4C90-8739-7F6746E46382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2837A212-53FF-4C90-8739-7F6746E46382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2837A212-53FF-4C90-8739-7F6746E46382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{386B7BA4-DCF8-4CF8-9E05-57098CD0B003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{386B7BA4-DCF8-4CF8-9E05-57098CD0B003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{386B7BA4-DCF8-4CF8-9E05-57098CD0B003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{386B7BA4-DCF8-4CF8-9E05-57098CD0B003}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

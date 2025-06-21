@@ -1,5 +1,4 @@
 ﻿using D3DBindings;
-using KBO.FXC;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,14 +9,12 @@ using System.Text.RegularExpressions;
 
 namespace KBO.FXC
 {
-    public static partial class Program
-    {
-        // allow for it to be collected in case of assembly unload
-        private static readonly LPCSTRObj StrProfile_fx_2_0 = new("fx_2_0");
-        //private static readonly LPCSTRObj StrDefineEHFXC = new("EHFXC");
-        private static readonly DefineMacros EHFXCMacros = new(("EHFXC", "1"));
 
-        //private static readonly RelativePathInclude ehfxcinclude = new RelativePathInclude();
+    public static partial class EffectCompiler
+    {
+        // object to allow the string to be collected in case of assembly unload
+        private static readonly LPCSTRObj StrProfile_fx_2_0 = new("fx_2_0");
+        private static readonly DefineMacros EHFXCMacros = new(("EHFXC", "1"));
 
         private const string DiagnosticFormatRegexStr = @"\s*(?<filepath>(\w:[\w_\\\/. ]+)\((?<row>\d+)(\-(?<rowend>\d+))?\,(?<column>\d+)(\-(?<columnend>\d+))?\)\:\s*)?(?<kind>warning|error)\s*(?<code>X?\d+)\s*\:\s*(?<diagmsg>[\w\d\ :',.]*)";
         private const RegexOptions DiagnosticFormatRegexOptions = RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
@@ -30,101 +27,6 @@ namespace KBO.FXC
         private static partial Regex DiagnosticFormatRegexF();
 #endif
 
-        internal static CompilerFlags DefaultEffectFlags = CompilerFlags.None;
-        // problem:
-        // #include does not work properly when the current directory is not the directory of the file 
-        // meaning files can only be compiled in parallel after grouping them by directory
-        // but compilation is usually very fast even doing them sequentially should be fine
-        // update: 
-
-        public static int Main(string[] args)
-        {
-            bool recursive = true;
-            bool waitForExitConfirmation = true;
-            string targetFile = "";
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (args[i].Equals("--file", StringComparison.Ordinal) || args[i].Equals("-f", StringComparison.Ordinal))
-                {
-                    if (args.Length < i + 1)
-                        Console.Error.WriteLine("Missing file path for argument '-f'");
-                    else
-                        targetFile = args[i + 1];
-                }
-                else if (args[i].Equals("--no-recursion", StringComparison.Ordinal))
-                {
-                    recursive = false;
-                }
-                else if (args[i].Equals("--no-wait", StringComparison.Ordinal))
-                {
-                    waitForExitConfirmation = false;
-                }
-            }
-            string oldCurrentDir = Environment.CurrentDirectory + Path.DirectorySeparatorChar;
-            bool anyErrors = false;
-            if (targetFile == "")
-            {
-                foreach (string file in Directory.EnumerateFiles(Environment.CurrentDirectory, "*.fx", recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
-                {
-                    anyErrors |= !Compile(file);
-                }
-            }
-            else
-            {
-                anyErrors = Compile(targetFile);
-            }
-            bool Compile(string file)
-            {
-                Console.WriteLine($"Compiling: {file.Substring(oldCurrentDir.Length)}");
-                try
-                {
-                    //string folder = Environment.CurrentDirectory = Path.GetDirectoryName(file)!;
-                    var result = CompileShaderFromFile(file, DefaultEffectFlags, false);
-                    Environment.CurrentDirectory = oldCurrentDir;
-
-                    if (!string.IsNullOrWhiteSpace(result.diagnosticsStr))
-                        Console.WriteLine(result.diagnosticsStr);
-                    if (result.hresult != 0)
-                    {
-                        return false;
-                    }
-                    if (result.effectData != null)
-                    {
-                        string outputFile = Path.ChangeExtension(file, ".fxc");
-                        Console.WriteLine($"Output: {outputFile}");
-                        File.WriteAllBytes(outputFile, result.effectData!);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Warning: compilation succeeded but no effect binary was produced");
-                    }
-
-                    Console.WriteLine();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Unexpected exception: {ex}");
-                    return false;
-                }
-                return true;
-            }
-            if (anyErrors)
-            {
-                Console.WriteLine("One or more files failed compilation");
-            }
-            else
-            {
-                Console.WriteLine("Compilation successful for all files");
-            }
-            if (waitForExitConfirmation)
-            {
-                Console.WriteLine("Press any key to close...");
-                Console.ReadKey();
-            }
-            if (anyErrors)
-                return D3DCompiler.E_FAIL;
-            return 0;
-        }
 
         private struct ID3DIncludeExContext
         {
@@ -136,13 +38,13 @@ namespace KBO.FXC
                 includeDirectories.Push(Path.GetDirectoryName(rootFile = initialDirectory)!);
             }
         }
+
         private unsafe ref struct ID3DIncludeEx
         {
             public ID3DInclude.Vtbl* lpVtbl;
             public void* pID3DIncludeExContext;
         }
 
-        private const int S_OK = 0;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private unsafe delegate int ID3DIncludeOpen(ID3DInclude* self, D3D_INCLUDE_TYPE includeType, LPCSTR fileName, void* parentData, void** data, uint* bytes);
@@ -167,7 +69,7 @@ namespace KBO.FXC
         //      |  \- Close("header.h")
         //      \- Close("otherheader.h")
         // 
-        //     
+
         private static unsafe int Open(ID3DInclude* _self, D3D_INCLUDE_TYPE includeType, LPCSTR fileName, void* parentData, void** data, uint* bytes)
         {
             ref ID3DIncludeExContext context = ref Unsafe.AsRef<ID3DIncludeExContext>((*(ID3DIncludeEx*)_self).pID3DIncludeExContext);
@@ -194,7 +96,7 @@ namespace KBO.FXC
                 *data = pContents;
                 *bytes = (uint)contents.Length;
                 context.includeDirectories.Push(newIncludeDirectory);
-                return S_OK;
+                return D3DCompiler.S_OK;
             }
             catch (FileNotFoundException e)
             {
@@ -207,9 +109,9 @@ namespace KBO.FXC
             context.includeDirectories.Pop();
 
             Marshal.FreeHGlobal((nint)pData);
-            return S_OK;
+            return D3DCompiler.S_OK;
         }
-        internal static unsafe CompileResult CompileShaderFromFile(string fullFileName, CompilerFlags flags, bool tryParseDiagnostics)
+        public static unsafe CompileResult CompileShaderFromFile(string fullFileName, CompilerFlags flags, bool tryParseDiagnostics)
         {
             using LPCSTR fileName = new LPCSTR(fullFileName.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar));
             ID3DIncludeExContext context = new ID3DIncludeExContext(fullFileName);
