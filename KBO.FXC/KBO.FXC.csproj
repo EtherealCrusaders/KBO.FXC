@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <LangVersion>9</LangVersion>
 
@@ -10,7 +10,6 @@
         <Title>KBO.FXC</Title>
         <Authors>LolXD87</Authors>
         <Description>Compiles effect (.fx) files.</Description>
-        <!--<PackageTags>MyTags</PackageTags>-->
         <Copyright>Copyright ©LolXD87 2025</Copyright>
  
         <DebugType>embedded</DebugType>

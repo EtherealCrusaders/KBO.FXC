@@ -39,7 +39,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\KBO.FXC\KBO.FXC.csproj" />
+	  <Compile Include="..\KBO.FXC\CompileDiagnostic.cs" />
+	  <Compile Include="..\KBO.FXC\CompileResult.cs" />
+	  <Compile Include="..\KBO.FXC\D3DBindings.cs" />
+	  <Compile Include="..\KBO.FXC\EffectCompiler.cs" />
+	  <Compile Include="..\KBO.FXC\DefineMacros.cs" />
 	</ItemGroup>
 
 	<!-- This is the target we defined above. It's purpose is to add all of our PackageReference and ProjectReference's runtime assets to our package output.  -->
