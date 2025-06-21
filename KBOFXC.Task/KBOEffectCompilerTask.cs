@@ -10,9 +10,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using KBO.FXC;
 
-namespace KBO.FXC.Task
+namespace KBOFXC.Task
 {
-    public class EffectCompilerTask : Microsoft.Build.Utilities.Task
+    public class KBOEffectCompilerTask : Microsoft.Build.Utilities.Task
     {
         [Required]
         public ITaskItem[]? EffectFiles { get; set; }

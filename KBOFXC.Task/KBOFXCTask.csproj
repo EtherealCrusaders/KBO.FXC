@@ -39,11 +39,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Include="..\KBO.FXC\CompileDiagnostic.cs" />
-	  <Compile Include="..\KBO.FXC\CompileResult.cs" />
-	  <Compile Include="..\KBO.FXC\D3DBindings.cs" />
-	  <Compile Include="..\KBO.FXC\EffectCompiler.cs" />
-	  <Compile Include="..\KBO.FXC\DefineMacros.cs" />
+		<Compile Include="..\KBO.FXC\CompileDiagnostic.cs" />
+		<Compile Include="..\KBO.FXC\CompileResult.cs" />
+		<Compile Include="..\KBO.FXC\D3DBindings.cs" />
+		<Compile Include="..\KBO.FXC\EffectCompiler.cs" />
+		<Compile Include="..\KBO.FXC\DefineMacros.cs" />
+
+		<Content Include="build\KBOFXCTask.props" PackagePath="build\" />
+		<Content Include="build\KBOFXCTask.targets" PackagePath="build\" />
 	</ItemGroup>
 
 	<!-- This is the target we defined above. It's purpose is to add all of our PackageReference and ProjectReference's runtime assets to our package output.  -->
