@@ -40,10 +40,11 @@ namespace KBO.FXC
         public static int Main(string[] args)
         {
             bool recursive = true;
+            bool waitForExitConfirmation = true;
             string targetFile = "";
             for (int i = 0; i < args.Length; i++)
             {
-                if (args[i].Equals("--file") || args[i].Equals("-f"))
+                if (args[i].Equals("--file", StringComparison.Ordinal) || args[i].Equals("-f", StringComparison.Ordinal))
                 {
                     if (args.Length < i + 1)
                         Console.Error.WriteLine("Missing file path for argument '-f'");
@@ -53,6 +54,10 @@ namespace KBO.FXC
                 else if (args[i].Equals("--no-recursion", StringComparison.Ordinal))
                 {
                     recursive = false;
+                }
+                else if (args[i].Equals("--no-wait", StringComparison.Ordinal))
+                {
+                    waitForExitConfirmation = false;
                 }
             }
             string oldCurrentDir = Environment.CurrentDirectory + Path.DirectorySeparatorChar;
@@ -77,19 +82,24 @@ namespace KBO.FXC
                     var result = CompileShaderFromFile(file, DefaultEffectFlags, false);
                     Environment.CurrentDirectory = oldCurrentDir;
 
-                    Console.WriteLine(result.diagnosticsStr);
+                    if (!string.IsNullOrWhiteSpace(result.diagnosticsStr))
+                        Console.WriteLine(result.diagnosticsStr);
                     if (result.hresult != 0)
                     {
                         return false;
                     }
                     if (result.effectData != null)
                     {
-                        File.WriteAllBytes(Path.ChangeExtension(file, ".fxc"), result.effectData!);
+                        string outputFile = Path.ChangeExtension(file, ".fxc");
+                        Console.WriteLine($"Output: {outputFile}");
+                        File.WriteAllBytes(outputFile, result.effectData!);
                     }
                     else
                     {
                         Console.WriteLine($"Warning: compilation succeeded but no effect binary was produced");
                     }
+
+                    Console.WriteLine();
                 }
                 catch (Exception ex)
                 {
@@ -97,6 +107,19 @@ namespace KBO.FXC
                     return false;
                 }
                 return true;
+            }
+            if (anyErrors)
+            {
+                Console.WriteLine("One or more files failed compilation");
+            }
+            else
+            {
+                Console.WriteLine("Compilation successful for all files");
+            }
+            if (waitForExitConfirmation)
+            {
+                Console.WriteLine("Press any key to close...");
+                Console.ReadKey();
             }
             if (anyErrors)
                 return D3DCompiler.E_FAIL;
