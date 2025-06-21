@@ -39,7 +39,7 @@ namespace KBO.FXC
 
         public static int Main(string[] args)
         {
-            bool recursive = false;
+            bool recursive = true;
             string targetFile = "";
             for (int i = 0; i < args.Length; i++)
             {
@@ -50,9 +50,9 @@ namespace KBO.FXC
                     else
                         targetFile = args[i + 1];
                 }
-                if (args[i].Equals("--recursive", StringComparison.Ordinal))
+                else if (args[i].Equals("--no-recursion", StringComparison.Ordinal))
                 {
-                    recursive = true;
+                    recursive = false;
                 }
             }
             string oldCurrentDir = Environment.CurrentDirectory + Path.DirectorySeparatorChar;
