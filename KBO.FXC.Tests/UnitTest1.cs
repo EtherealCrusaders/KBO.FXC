@@ -1,3 +1,5 @@
+using KBOFXC;
+
 namespace KBO.FXC.Tests
 {
     public class Tests

@@ -245,22 +245,22 @@ namespace D3DBindings
         DEBUG_NAME_FOR_BINARY = (1 << 23),
     }
 
-    internal unsafe class D3DCompiler
+    public static unsafe class D3DCompiler
     {
         public const int E_FAIL = unchecked((int)0x80004005);
+        public const int S_OK = 0;
         public static readonly ID3DIncludePtr D3D_COMPILE_STANDARD_FILE_INCLUDE = new((ID3DInclude*)1);
 
-        // 
         // https://learn.microsoft.com/en-us/windows/win32/api/d3dcompiler/nf-d3dcompiler-d3dcompilefromfile
-        [DllImport("D3DCompiler_47", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+        [DllImport("d3dcompiler_47", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
         public static extern int D3DCompileFromFile(LPCWSTR pFileName, D3D_SHADER_MACRO* pDefines, ID3DIncludePtr pInclude, LPCSTR pEntrypoint, LPCSTR pTarget, CompilerFlags Flags1, uint Flags2, out ID3D10BlobPtr ppCode, out ID3D10BlobPtr ppErrorMsgs);
 
         // https://learn.microsoft.com/en-us/windows/win32/api/d3dcompiler/nf-d3dcompiler-d3dcompile
-        [DllImport("D3DCompiler_47", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+        [DllImport("d3dcompiler_47", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
         public static extern int D3DCompile(void* pSrcData, /*[NativeTypeName("SIZE_T")]*/ nuint SrcDataSize, LPCSTR pSourceName, D3D_SHADER_MACRO* pDefines, ID3DIncludePtr pInclude, LPCSTR pEntrypoint, LPCSTR pTarget, CompilerFlags Flags1, uint Flags2, out ID3D10BlobPtr ppCode, out ID3D10BlobPtr ppErrorMsgs);
 
         // https://learn.microsoft.com/en-us/windows/win32/api/d3dcompiler/nf-d3dcompiler-d3dpreprocess
-        [DllImport("D3DCompiler_47", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
+        [DllImport("d3dcompiler_47", CallingConvention = CallingConvention.StdCall, ExactSpelling = true)]
         public static extern int D3DPreprocess(void* pSrcData, /*[NativeTypeName("SIZE_T")]*/ nuint SrcDataSize, LPCSTR pSourceName, D3D_SHADER_MACRO* pDefines, ID3DIncludePtr pInclude, out ID3D10BlobPtr ppCodeText, out ID3D10BlobPtr ppErrorMsgs);
 
     }

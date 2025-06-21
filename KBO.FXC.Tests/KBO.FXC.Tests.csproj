@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -26,6 +26,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\KBO.FXC\KBO.FXC.csproj" />
+	  <ProjectReference Include="..\KBOFXC\KBOFXC.csproj" />
 	</ItemGroup>
 
 </Project>

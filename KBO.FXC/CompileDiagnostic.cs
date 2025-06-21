@@ -1,6 +1,6 @@
 ﻿namespace KBO.FXC
 {
-    internal struct CompileDiagnostic
+    public struct CompileDiagnostic
     {
         public bool isWarning;
         public int column, columnEnd;
