@@ -29,4 +29,8 @@
 	  <ProjectReference Include="..\KBOFXC\KBOFXC.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Effects\ASCII\" />
+	</ItemGroup>
+
 </Project>

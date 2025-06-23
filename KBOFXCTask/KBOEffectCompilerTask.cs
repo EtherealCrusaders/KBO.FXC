@@ -10,12 +10,14 @@ using System.Text;
 using System.Text.RegularExpressions;
 using KBO.FXC;
 
-namespace KBOFXC.Task
+namespace KBOFXCTask
 {
     public class KBOEffectCompilerTask : Microsoft.Build.Utilities.Task
     {
         [Required]
         public ITaskItem[]? EffectFiles { get; set; }
+
+        public string[] AdditionalSearchPaths { get; set; } = Array.Empty<string>();
 
         public bool IgnoreErrors { get; set; }
 
@@ -34,10 +36,60 @@ namespace KBOFXC.Task
                 {
                     string relativeFxFilePath = item.ItemSpec;
                     string fullFxFilePath = Path.GetFullPath(relativeFxFilePath);
-                    Environment.CurrentDirectory = Path.GetDirectoryName(fullFxFilePath)!;
-                    var result = EffectCompiler.CompileShaderFromFile(fullFxFilePath, DefaultEffectFlags, true);
 
-                    string outputFile = item.GetMetadata("OutputFilePath");
+                    void WarnMetadataInvalidValue(string metadataName, string value)
+                    {
+                        BuildEngine.LogWarningEvent(new BuildWarningEventArgs("KBOFXC", "KBOFXC03", fullFxFilePath, 0, 0, 0, 0, $"Invalid value '{value}' for metadata '{metadataName}'", "", ""));
+                    }
+                    bool GetBoolMetadata(string metadataName)
+                    {
+                        string value = item.GetMetadata(metadataName);
+                        if (value.Equals("true", StringComparison.OrdinalIgnoreCase))
+                            return true;
+                        if (!value.Equals("false", StringComparison.OrdinalIgnoreCase))
+                        {
+                            WarnMetadataInvalidValue(metadataName, value);
+                        }
+                        return false;
+                    }
+
+                    CompilerFlags compilerFlags = CompilerFlags.None;
+                    if (GetBoolMetadata("NoPreshader")) compilerFlags |= CompilerFlags.NoPreshader;
+                    if (GetBoolMetadata("WarningsAreErrors")) compilerFlags |= CompilerFlags.WarningsAreErrors;
+                    if (GetBoolMetadata("SkipOptimization")) compilerFlags |= CompilerFlags.SkipOptimization;
+                    if (GetBoolMetadata("Debug")) compilerFlags |= CompilerFlags.Debug;
+                    string metadataOptimizationLevel = item.GetMetadata("OptimizationLevel");
+                    switch (metadataOptimizationLevel)
+                    {
+                        case "0": compilerFlags |= CompilerFlags.OptimizationLevel0; break;
+                        case "1": compilerFlags |= CompilerFlags.OptimizationLevel1; break;
+                        case "2": compilerFlags |= CompilerFlags.OptimizationLevel2; break;
+                        case "3": compilerFlags |= CompilerFlags.OptimizationLevel3; break;
+                        default:
+                            if (!string.IsNullOrEmpty(metadataOptimizationLevel))
+                                WarnMetadataInvalidValue("OptimizationLevel", metadataOptimizationLevel);
+                            break;
+                    }
+                    string metadataPackMatrix = item.GetMetadata("PackMatrix");
+                    if (metadataPackMatrix.Equals("rowmajor", StringComparison.OrdinalIgnoreCase)
+                        || metadataPackMatrix.Equals("row_major", StringComparison.OrdinalIgnoreCase))
+                    {
+                        compilerFlags |= CompilerFlags.PackMatrixRowMajor;
+                    }
+                    else if (metadataPackMatrix.Equals("columnmajor", StringComparison.OrdinalIgnoreCase)
+                        || metadataPackMatrix.Equals("column_major", StringComparison.OrdinalIgnoreCase))
+                    {
+                        compilerFlags |= CompilerFlags.PackMatrixColumnMajor;
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(metadataPackMatrix))
+                            WarnMetadataInvalidValue("OptimizationLevel", metadataOptimizationLevel);
+                    }
+
+                    CompileResult result = EffectCompiler.CompileShaderFromFile(fullFxFilePath, compilerFlags, true, AdditionalSearchPaths);
+
+                    string outputFile = item.GetMetadata("OutputPath");
                     if (string.IsNullOrWhiteSpace(outputFile))
                         outputFile = Path.ChangeExtension(fullFxFilePath, ".fxc");
 
@@ -51,11 +103,11 @@ namespace KBOFXC.Task
                                 diagnosticFilePath = fullFxFilePath;
                             if (diag.isWarning)
                             {
-                                BuildEngine.LogWarningEvent(new BuildWarningEventArgs("EHFXC", diag.code, diagnosticFilePath, diag.row, diag.column, diag.rowEnd, diag.columnEnd, diag.message, "", ""));
+                                BuildEngine.LogWarningEvent(new BuildWarningEventArgs("KBOFXC", diag.code, diagnosticFilePath, diag.row, diag.column, diag.rowEnd, diag.columnEnd, diag.message, "", ""));
                             }
                             else
                             {
-                                BuildEngine.LogErrorEvent(new BuildErrorEventArgs("EHFXC", diag.code, diagnosticFilePath, diag.row, diag.column, diag.rowEnd, diag.columnEnd, diag.message, "", ""));
+                                BuildEngine.LogErrorEvent(new BuildErrorEventArgs("KBOFXC", diag.code, diagnosticFilePath, diag.row, diag.column, diag.rowEnd, diag.columnEnd, diag.message, "", ""));
                                 anyErrorDiagnostics = true;
                             }
                         }
@@ -63,32 +115,32 @@ namespace KBOFXC.Task
                         if (result.hresult == E_FAIL)
                         {
                             if (!anyErrorDiagnostics)
-                                BuildEngine.LogErrorEvent(new BuildErrorEventArgs("EHFXC", "EHFXC04", fullFxFilePath, 0, 0, 0, 0, "Compilation failed", "", ""));
+                                BuildEngine.LogErrorEvent(new BuildErrorEventArgs("KBOFXC", "KBOFXC04", fullFxFilePath, 0, 0, 0, 0, "Compilation failed", "", ""));
                             anyErrors = true;
                             continue;
                         }
                         if (result.effectData == null)
                         {
-                            BuildEngine.LogErrorEvent(new BuildErrorEventArgs("EHFXC", "EHFXC05", fullFxFilePath, 0, 0, 0, 0, "Compilation did not error but did not produce an effect", "", ""));
+                            BuildEngine.LogErrorEvent(new BuildErrorEventArgs("KBOFXC", "KBOFXC05", fullFxFilePath, 0, 0, 0, 0, "Compilation did not error but did not produce an effect", "", ""));
                             anyErrors = true;
                         }
                         else
                         {
-                            BuildEngine.LogMessageEvent(new BuildMessageEventArgs("EHFXC", "EHFXC06", fullFxFilePath, 0, 0, 0, 0, $"Writing output to {outputFile}", "", "", MessageImportance.Low));
+                            BuildEngine.LogMessageEvent(new BuildMessageEventArgs("KBOFXC", "", fullFxFilePath, 0, 0, 0, 0, $"Writing output to {outputFile}", "", "", MessageImportance.Low));
                             File.WriteAllBytes(outputFile, result.effectData);
                         }
                         Marshal.ThrowExceptionForHR(result.hresult);
                     }
                     catch (Exception e)
                     {
-                        BuildEngine.LogErrorEvent(new BuildErrorEventArgs("EHFXC", "EHFXC07", fullFxFilePath, 0, 0, 0, 0, $"An unexpected exception occured: {e}", "", ""));
+                        BuildEngine.LogErrorEvent(new BuildErrorEventArgs("KBOFXC", "KBOFXC06", fullFxFilePath, 0, 0, 0, 0, $"An unexpected exception occured: {e}", "", ""));
                         anyErrors = true;
                         continue;
                     }
                 }
                 finally
                 {
-                    Environment.CurrentDirectory = startDirectory;
+                    //Environment.CurrentDirectory = startDirectory;
                 }
 
             }

@@ -19,12 +19,20 @@ namespace KBOFXC
             bool recursive = true;
             bool waitForExitConfirmation = true;
             string targetFile = "";
+            List<string> includePaths = new List<string>();
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i].Equals("--file", StringComparison.Ordinal) || args[i].Equals("-f", StringComparison.Ordinal))
                 {
                     if (args.Length < i + 1)
-                        Console.Error.WriteLine("Missing file path for argument '-f'");
+                        Console.Error.WriteLine($"Missing file path for argument '{args[i]}'");
+                    else
+                        targetFile = args[i + 1];
+                }
+                if (args[i].Equals("--include", StringComparison.Ordinal) || args[i].Equals("-I", StringComparison.Ordinal))
+                {
+                    if (args.Length < i + 1)
+                        Console.Error.WriteLine($"Missing file path for argument '-{args[i]}'");
                     else
                         targetFile = args[i + 1];
                 }
@@ -66,7 +74,7 @@ namespace KBOFXC
                 Console.WriteLine($"Compiling: {file.Substring(oldCurrentDir.Length)}");
                 try
                 {
-                    var result = EffectCompiler.CompileShaderFromFile(file, DefaultEffectFlags, false);
+                    var result = EffectCompiler.CompileShaderFromFile(file, DefaultEffectFlags, false, includePaths.ToArray());
 
                     if (!string.IsNullOrWhiteSpace(result.diagnosticsStr))
                         Console.WriteLine(result.diagnosticsStr);

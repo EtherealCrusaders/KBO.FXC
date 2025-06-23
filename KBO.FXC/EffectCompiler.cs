@@ -30,12 +30,14 @@ namespace KBO.FXC
 
         private struct ID3DIncludeExContext
         {
-            public Stack<string> includeDirectories;
+            public Stack<string> visitedIncludeDirectories;
             public string rootFile;
-            public ID3DIncludeExContext(string initialDirectory)
+            public string[] additionalIncludePaths;
+            public ID3DIncludeExContext(string initialDirectory, string[] additionalIncludePaths)
             {
-                includeDirectories = new Stack<string>();
-                includeDirectories.Push(Path.GetDirectoryName(rootFile = initialDirectory)!);
+                visitedIncludeDirectories = new Stack<string>();
+                visitedIncludeDirectories.Push(Path.GetDirectoryName(rootFile = initialDirectory)!);
+                this.additionalIncludePaths = additionalIncludePaths;
             }
         }
 
@@ -79,7 +81,7 @@ namespace KBO.FXC
                 string newIncludeDirectory;
                 if (!Path.IsPathRooted(filePath))
                 {
-                    string previousDirectory = context.includeDirectories.Peek();
+                    string previousDirectory = context.visitedIncludeDirectories.Peek();
                     filePath = Path.Combine(previousDirectory, filePath);
                     newIncludeDirectory = Path.GetDirectoryName(filePath)!;
                 }
@@ -88,6 +90,7 @@ namespace KBO.FXC
                     newIncludeDirectory = Path.GetDirectoryName(filePath)!;
                 }
 
+
                 string text = File.ReadAllText(filePath);
                 byte[] contents = Encoding.ASCII.GetBytes(text);
                 byte* pContents = (byte*)Marshal.AllocHGlobal(contents.Length + 1);
@@ -95,7 +98,7 @@ namespace KBO.FXC
                 pContents[contents.Length] = 0;
                 *data = pContents;
                 *bytes = (uint)contents.Length;
-                context.includeDirectories.Push(newIncludeDirectory);
+                context.visitedIncludeDirectories.Push(newIncludeDirectory);
                 return D3DCompiler.S_OK;
             }
             catch (FileNotFoundException e)
@@ -106,15 +109,15 @@ namespace KBO.FXC
         private static unsafe int Close(ID3DInclude* _self, void* pData)
         {
             ref ID3DIncludeExContext context = ref Unsafe.AsRef<ID3DIncludeExContext>((*(ID3DIncludeEx*)_self).pID3DIncludeExContext);
-            context.includeDirectories.Pop();
+            context.visitedIncludeDirectories.Pop();
 
             Marshal.FreeHGlobal((nint)pData);
             return D3DCompiler.S_OK;
         }
-        public static unsafe CompileResult CompileShaderFromFile(string fullFileName, CompilerFlags flags, bool tryParseDiagnostics)
+        public static unsafe CompileResult CompileShaderFromFile(string fullFileName, CompilerFlags flags, bool tryParseDiagnostics, string[]? additionalIncludePaths)
         {
             using LPCSTR fileName = new LPCSTR(fullFileName.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar));
-            ID3DIncludeExContext context = new ID3DIncludeExContext(fullFileName);
+            ID3DIncludeExContext context = new ID3DIncludeExContext(fullFileName, additionalIncludePaths);
 
             ID3DIncludeEx include;
             ID3DInclude.Vtbl vtbl;

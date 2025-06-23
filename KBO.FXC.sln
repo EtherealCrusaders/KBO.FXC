@@ -9,8 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		KBO.FXC.md = KBO.FXC.md
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
+		MSBuildTask.md = MSBuildTask.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBO.FXC.Tests", "KBO.FXC.Tests\KBO.FXC.Tests.csproj", "{76D3FBEB-F920-4A6E-AAF8-6303FB8D8FB9}"
