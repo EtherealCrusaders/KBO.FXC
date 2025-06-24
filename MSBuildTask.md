@@ -1,7 +1,7 @@
 
 ## MSBuild Properties 
-- `KBOEffectsIncludePaths`: A list of folders separated by semicolons where to search paths. <br/>
-`KBOEffectsIncludePaths`
+- `KBOEffectsIgnoreErrors`: Allows the mod to compile even if there are errors in the shader files. (`true` or `false` (default)) 
+
 
 For more information on how #include works, see 
 

@@ -1,6 +1,6 @@
 <Project>
 
 	<Target Name="KBOCompileEffects" BeforeTargets="BeforeCompile" Inputs="@(KBOEffects->'%(RecursiveDir)%(FileName)%(Extension)')" Outputs="@(KBOEffects->'%(RecursiveDir)%(FileName).fxc')">
-		<KBOEffectCompilerTask EffectFiles="@(KBOEffects)"/>
+		<KBOEffectCompilerTask EffectFiles="@(KBOEffects)" IgnoreErrors="$(KBOEffectsIgnoreErrors)"/>
 	</Target>
 </Project>

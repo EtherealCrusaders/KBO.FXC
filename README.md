@@ -30,7 +30,7 @@ The command line args are:
 ```
 
 ### Setting up the msbuild task
-1. Download the KBOFXCTask.zip from releases.
+1. Download the KBOFXCTask.zip from Releases.
 2. Extract into any directory in your mod, maybe in an Assets/Effects/Compiler folder.
 3. Add to your mod's .csproj:
 	```xml
@@ -42,7 +42,7 @@ The command line args are:
 That's all, when you build the mod it should compile all `.fx` files and produce an `.fxc` file next to them.
 
 However if you used to compile effects to xnbs, you will get an error while the mod is loading. <br/>
-To fix this, you could simply delete the xnbs **after confirming you get an identical `.fxc` binary**. <br/>
+To fix this, you could simply delete the xnbs **after confirming you get an `.fxc` binary with identical behaviour and parameters**. <br/>
 Or you could blacklist `.fx` files by adding:
 ```
 <ItemGroup>

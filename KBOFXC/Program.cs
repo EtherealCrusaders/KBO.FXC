@@ -19,6 +19,7 @@ namespace KBOFXC
             bool recursive = true;
             bool waitForExitConfirmation = true;
             string targetFile = "";
+            CompilerFlags flags = CompilerFlags.None;
             List<string> includePaths = new List<string>();
             for (int i = 0; i < args.Length; i++)
             {
@@ -74,19 +75,25 @@ namespace KBOFXC
                 Console.WriteLine($"Compiling: {file.Substring(oldCurrentDir.Length)}");
                 try
                 {
-                    var result = EffectCompiler.CompileShaderFromFile(file, DefaultEffectFlags, false, includePaths.ToArray());
 
-                    if (!string.IsNullOrWhiteSpace(result.diagnosticsStr))
-                        Console.WriteLine(result.diagnosticsStr);
-                    if (result.hresult != 0)
+                    HResult hresult = EffectCompiler.CompileEffect(file, null, null, DefaultEffectFlags, out byte[] effectCode, out string? diagnostics);
+                    //HResult hresult = D3DCompiler.D3DCompile(new ArraySegment<byte>(File.ReadAllBytes(file)), file, new D3DShaderMacros(new Dictionary<string, string?>()
+                    //{
+                    //    ["KBOFXC"] = "1"
+                    //}), new ID3DIncludeNewHandler(file), null, "fx_2_0", flags, 0, out byte[] shaderCode, out string? errors);
+                    //var result = EffectCompiler.CompileShaderFromFile(file, DefaultEffectFlags, false, includePaths.ToArray());
+
+                    if (!string.IsNullOrWhiteSpace(diagnostics))
+                        Console.WriteLine(diagnostics);
+                    if (hresult.code != 0)
                     {
                         return false;
                     }
-                    if (result.effectData != null)
+                    if (effectCode != null && effectCode.Length != 0)
                     {
                         string outputFile = Path.ChangeExtension(file, ".fxc");
                         Console.WriteLine($"Output: {outputFile}");
-                        File.WriteAllBytes(outputFile, result.effectData!);
+                        File.WriteAllBytes(outputFile, effectCode!);
                     }
                     else
                     {
@@ -122,7 +129,7 @@ namespace KBOFXC
                 Console.ReadKey();
             }
             if (anyErrors)
-                return D3DCompiler.E_FAIL;
+                return HResult.E_FAIL;
             return 0;
         }
 

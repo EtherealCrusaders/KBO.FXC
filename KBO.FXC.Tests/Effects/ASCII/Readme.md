@@ -1,1 +1,3 @@
-These files MUST NOT have an ASCII header.
+
+
+The `.fxc.fx` files are intended to be consumed by the 

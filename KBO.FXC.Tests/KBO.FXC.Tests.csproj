@@ -22,6 +22,12 @@
 		<None Include="Effects/**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Include="IncludeTests/**/*.fx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Condition="Exists('fxcpath.txt')" Include="fxcpath.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -31,6 +37,10 @@
 
 	<ItemGroup>
 	  <Folder Include="Effects\ASCII\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="IncludeTests\IncludeTests.cs" />
 	</ItemGroup>
 
 </Project>
