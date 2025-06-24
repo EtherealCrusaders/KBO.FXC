@@ -19,12 +19,21 @@ namespace KBOFXC
             bool recursive = true;
             bool waitForExitConfirmation = true;
             string targetFile = "";
+            CompilerFlags flags = CompilerFlags.None;
+            List<string> includePaths = new List<string>();
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i].Equals("--file", StringComparison.Ordinal) || args[i].Equals("-f", StringComparison.Ordinal))
                 {
                     if (args.Length < i + 1)
-                        Console.Error.WriteLine("Missing file path for argument '-f'");
+                        Console.Error.WriteLine($"Missing file path for argument '{args[i]}'");
+                    else
+                        targetFile = args[i + 1];
+                }
+                if (args[i].Equals("--include", StringComparison.Ordinal) || args[i].Equals("-I", StringComparison.Ordinal))
+                {
+                    if (args.Length < i + 1)
+                        Console.Error.WriteLine($"Missing file path for argument '-{args[i]}'");
                     else
                         targetFile = args[i + 1];
                 }
@@ -66,19 +75,20 @@ namespace KBOFXC
                 Console.WriteLine($"Compiling: {file.Substring(oldCurrentDir.Length)}");
                 try
                 {
-                    var result = EffectCompiler.CompileShaderFromFile(file, DefaultEffectFlags, false);
 
-                    if (!string.IsNullOrWhiteSpace(result.diagnosticsStr))
-                        Console.WriteLine(result.diagnosticsStr);
-                    if (result.hresult != 0)
+                    HResult hresult = EffectCompiler.CompileEffect(file, null, null, DefaultEffectFlags, out byte[] effectCode, out string? diagnostics);
+
+                    if (!string.IsNullOrWhiteSpace(diagnostics))
+                        Console.WriteLine(diagnostics);
+                    if (hresult.code != 0)
                     {
                         return false;
                     }
-                    if (result.effectData != null)
+                    if (effectCode != null && effectCode.Length != 0)
                     {
                         string outputFile = Path.ChangeExtension(file, ".fxc");
                         Console.WriteLine($"Output: {outputFile}");
-                        File.WriteAllBytes(outputFile, result.effectData!);
+                        File.WriteAllBytes(outputFile, effectCode!);
                     }
                     else
                     {
@@ -114,7 +124,7 @@ namespace KBOFXC
                 Console.ReadKey();
             }
             if (anyErrors)
-                return D3DCompiler.E_FAIL;
+                return HResult.E_FAIL;
             return 0;
         }
 

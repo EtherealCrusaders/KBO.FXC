@@ -22,11 +22,25 @@
 		<None Include="Effects/**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Include="IncludeTests/**/*.fx">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Condition="Exists('fxcpath.txt')" Include="fxcpath.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\KBO.FXC\KBO.FXC.csproj" />
 	  <ProjectReference Include="..\KBOFXC\KBOFXC.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Effects\ASCII\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="IncludeTests\IncludeTests.cs" />
 	</ItemGroup>
 
 </Project>
