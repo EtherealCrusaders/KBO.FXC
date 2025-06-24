@@ -43,7 +43,7 @@ That's all, when you build the mod it should compile all `.fx` files and produce
 
 However if you used to compile effects to xnbs, you will get an error while the mod is loading. <br/>
 To fix this, you could simply delete the xnbs **after confirming you get an `.fxc` binary with identical behaviour and parameters**. <br/>
-Or you could blacklist `.fx` files by adding:
+Or you could blacklist `.fx` files by adding to your .csproj:
 ```
 <ItemGroup>
 	<KBOEffects Remove="path/to/file.fx"/>

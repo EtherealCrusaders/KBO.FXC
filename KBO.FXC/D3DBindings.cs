@@ -344,11 +344,18 @@ namespace D3DBindings
         {
             if (includeType == D3D_INCLUDE_TYPE.Local)
             {
-                string currentDirectory = visitedPathStack.Peek();
-                if (TryOpen(currentDirectory, fileName, out data, out dataLength))
+                // file 
+                // \ #include A
+                //   \ #include B
+                // B's directory is checked first
+                // A's directory is checked
+                // file's directory is checked
+                foreach (string dir in visitedPathStack)
                 {
-                    //visitedPathStack.Push(currentDirectory);
-                    return HResult.S_OK;
+                    if (TryOpen(dir, fileName, out data, out dataLength))
+                    {
+                        return HResult.S_OK;
+                    }
                 }
             }
             foreach (string path in SystemIncludePaths)

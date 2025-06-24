@@ -2,9 +2,6 @@
 ## MSBuild Properties 
 - `KBOEffectsIgnoreErrors`: Allows the mod to compile even if there are errors in the shader files. (`true` or `false` (default)) 
 
-
-For more information on how #include works, see 
-
 ## MSBuild Items
 
 ### KBOEffects metadata
