@@ -77,11 +77,6 @@ namespace KBOFXC
                 {
 
                     HResult hresult = EffectCompiler.CompileEffect(file, null, null, DefaultEffectFlags, out byte[] effectCode, out string? diagnostics);
-                    //HResult hresult = D3DCompiler.D3DCompile(new ArraySegment<byte>(File.ReadAllBytes(file)), file, new D3DShaderMacros(new Dictionary<string, string?>()
-                    //{
-                    //    ["KBOFXC"] = "1"
-                    //}), new ID3DIncludeNewHandler(file), null, "fx_2_0", flags, 0, out byte[] shaderCode, out string? errors);
-                    //var result = EffectCompiler.CompileShaderFromFile(file, DefaultEffectFlags, false, includePaths.ToArray());
 
                     if (!string.IsNullOrWhiteSpace(diagnostics))
                         Console.WriteLine(diagnostics);
