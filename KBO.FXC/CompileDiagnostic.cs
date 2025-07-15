@@ -7,14 +7,14 @@ namespace KBO.FXC
 {
     public partial struct CompileDiagnostic
     {
-        public bool isWarning;
+        public bool? isWarning;
         public int column, columnEnd;
         public int row, rowEnd;
         public string message;
         public string code;
         public string? file;
 
-        public CompileDiagnostic(bool isWarning, int column, int columnEnd, int row, int rowEnd, string message, string code, string? file)
+        public CompileDiagnostic(bool? isWarning, int column, int columnEnd, int row, int rowEnd, string message, string code, string? file)
         {
             this.isWarning = isWarning;
             this.column = column;
@@ -28,7 +28,7 @@ namespace KBO.FXC
         }
 
 
-        private const string DiagnosticFormatRegexStr = @"\s*((?<filepath>\w:[\w_\\\/. ]+)\((?<row>\d+)(\-(?<rowend>\d+))?\,(?<column>\d+)(\-(?<columnend>\d+))?\)\:\s*)?(?<kind>warning|error)\s*(?<code>X?\d+)\s*\:\s*(?<diagmsg>[\w\d\ :',.]*)";
+        private const string DiagnosticFormatRegexStr = @"\s*((?<filepath>\w:[\w_\\\/. ]+)\((?<row>\d+)(\-(?<rowend>\d+))?\,(?<column>\d+)(\-(?<columnend>\d+))?\)\:\s*)?(?<kind>warning|error)?\s*(?<codeorsource>(X?\d+)|(\w+))\s*\:\s*(?<diagmsg>[\w\d\ :',.]*)"; //@"\s*((?<filepath>\w:[\w_\\\/. ]+)\((?<row>\d+)(\-(?<rowend>\d+))?\,(?<column>\d+)(\-(?<columnend>\d+))?\)\:\s*)?(?<kind>warning|error)\s*(?<code>X?\d+)\s*\:\s*(?<diagmsg>[\w\d\ :',.]*)";
         private const RegexOptions DiagnosticFormatRegexOptions = RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex DiagnosticFormatRegex =
 #if !NET8_0_OR_GREATER
@@ -40,7 +40,7 @@ namespace KBO.FXC
 #endif
 
         private static readonly char[] newlinechar = new char[] { '\n' };
-        public static CompileDiagnostic[] GetDiagnostics(string? d3dOutputDiagnostics)
+        public static CompileDiagnostic[] GetDiagnostics(string? d3dOutputDiagnostics) // string file parameter
         {
             if (string.IsNullOrWhiteSpace(d3dOutputDiagnostics))
                 return Array.Empty<CompileDiagnostic>();
@@ -68,11 +68,19 @@ namespace KBO.FXC
                 int rowEnd = int.TryParse(groups["rowend"].Value, out res) ? res : row;
                 int column = int.TryParse(groups["column"].Value, out res) ? res : 0;
                 int columnEnd = int.TryParse(groups["columnend"].Value, out res) ? res : column;
-                bool isWarning = groups["kind"].Value.Equals("warning", StringComparison.OrdinalIgnoreCase);
-                string code = groups["code"].Value;
+                string kind = groups["kind"].Value;
+                bool? isWarning;
+                if (string.IsNullOrWhiteSpace(kind))
+                    isWarning = null;
+                else 
+                    isWarning = kind.Equals("warning", StringComparison.OrdinalIgnoreCase);
+                string codeOrSource = groups["codeorsource"].Value;
                 string message = groups["diagmsg"].Value;
 
-                diagnostics.Add(new CompileDiagnostic(isWarning, column, columnEnd, row, rowEnd, message, code, diagnosticFilePath));
+                if (message == "Compilation failed")
+                    isWarning = false;
+
+                diagnostics.Add(new CompileDiagnostic(isWarning, column, columnEnd, row, rowEnd, message, codeOrSource, diagnosticFilePath));
             }
             return diagnostics.ToArray();
         }

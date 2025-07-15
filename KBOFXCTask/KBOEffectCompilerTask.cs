@@ -93,7 +93,7 @@ namespace KBOFXCTask
                     string? diagnosticFilePath = diag.file ?? fullFxFilePath;
                     if (string.IsNullOrWhiteSpace(diagnosticFilePath))
                         diagnosticFilePath = fullFxFilePath;
-                    if (diag.isWarning)
+                    if (diag.isWarning == true)
                     {
                         BuildEngine.LogWarningEvent(new BuildWarningEventArgs("KBOFXC", diag.code, diagnosticFilePath, diag.row, diag.column, diag.rowEnd, diag.columnEnd, diag.message, "", ""));
                     }
