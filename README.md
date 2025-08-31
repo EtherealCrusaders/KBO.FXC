@@ -45,7 +45,8 @@ Or you could blacklist `.fx` files by adding to your .csproj:
 
 You can also whitelist `.fx` files by doing `Include` instead of `Remove` (e.g. `<KBOEffects Include="path/to/file.fx"/>`)
 
-If you want to configure a specific file that was already added (e.g. to disable optimizations), you can do `Update` `<KBOEffects Update="path/to/file.fx" SkipOptimization="true" OtherMetadata="NewValue"/>`
+If you want to configure a specific file that was already added (e.g. to disable optimizations), you can do `Update`<br/> 
+`<KBOEffects Update="path/to/file.fx" SkipOptimization="true" OtherMetadata="NewValue"/>`
 
 For more information, see [MSBuildTask.md](./MSBuildTask.md).
 
