@@ -20,15 +20,6 @@ There are 2 ways to use this compiler:
 
 But you can have both in your mod just in case.
 
-### CLI Tool
-This tool is an executable, it will compile all shaders in the current directory and it's subdirectories when run. <br/>
-The command line args are:
-```
---file/-f (file) : Specifies the single file to compile.
---no-recursion : inspect only the current directory for .fx files
---no-wait-exit : Closes immediately after compilation succeeds or fails, if not specified (default) it waits for a key press before closing.
-```
-
 ### Setting up the msbuild task
 1. Download the KBOFXCTask.zip from Releases.
 2. Extract into any directory in your mod, maybe in an Assets/Effects/Compiler folder.
@@ -58,6 +49,15 @@ If you want to configure a specific file that was already added (e.g. to disable
 
 For more information, see [MSBuildTask.md](./MSBuildTask.md).
 
+
+### CLI Tool
+This tool is an executable, it will compile all shaders in the current directory and it's subdirectories when run. <br/>
+The command line args are:
+```
+--file/-f (file) : Specifies the single file to compile.
+--no-recursion : inspect only the current directory for .fx files
+--no-wait-exit : Closes immediately after compilation succeeds or fails, if not specified (default) it waits for a key press before closing.
+```
 
 ### Project structure
 - `KBO.FXC/` the D3DCompiler bindings as a ns2.0/net8.0 library.
